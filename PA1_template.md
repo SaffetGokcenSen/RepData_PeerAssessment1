@@ -1,13 +1,12 @@
 # Reproducible Research: Peer Assessment 1
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
+
 ## Loading and preprocessing the data
 
 The data is to be loaded and pre-processed.
 
-```{r load_preprocess}
+
+```r
 library(data.table) # load the package "data.table"
 data <- fread("activity.csv", data.table = FALSE) # read in the data
 ```
@@ -17,7 +16,8 @@ data <- fread("activity.csv", data.table = FALSE) # read in the data
 The total number of steps taken daily is to be calculated. Then, the histogram
 for the daily total number of steps throughout two months is plotted.
 
-```{r histogram}
+
+```r
 library(dplyr) # load the package "dplyr"
 step_number_df <- data %>%
       group_by(date) %>% # group data by date
@@ -38,15 +38,18 @@ hist(step_array, xlab = x_label, main = the_title, breaks = "FD")
 rug(step_array)
 ```
 
-The mean of the daily total number of steps is `r the_mean` and its median is 
-`r the_median`.
+![plot of chunk histogram](figure/histogram-1.png)
+
+The mean of the daily total number of steps is 9354 and its median is 
+10395.
 
 ## What is the average daily activity pattern?
 
 The activity pattern, i.e. the number of steps taken, with respect to the 
 5-minute interval is to be averaged across all days.
 
-```{r average_daily_activity_pattern}
+
+```r
 avg_daily_act <- data %>% group_by(interval) %>% # group by interval
       # get average number of steps
       summarise(avg_steps = mean(steps, na.rm = TRUE)) %>%
@@ -62,23 +65,27 @@ with(avg_daily_act, plot(interval, avg_steps, type = "l", xlab = x_label,
                          ylab = y_label, main = the_title))
 ```
 
+![plot of chunk average_daily_activity_pattern](figure/average_daily_activity_pattern-1.png)
+
 The maximum average number of steps occurs at the 5-minute interval 
-`r max_avg_step`.
+835.
 
 ## Imputing missing values
 
 There are missing values in the data set and these missing values will be filled 
 in.
 
-```{r num_of_missing_values}
+
+```r
 num_miss_values <- sum(is.na(data$steps)) # number of missing values
 ```
 
-The total number of missing values in the data set is `r num_miss_values`. For 
+The total number of missing values in the data set is 2304. For 
 filling in the missing values, the mean for that 5-minute interval across all 
 days is to be used.
 
-```{r imputation}
+
+```r
 # combine the original data and the average daily activity data on the
 # "interval" key.
 filled_data <- full_join(data, avg_daily_act, by = "interval")
@@ -111,17 +118,20 @@ hist(step_array_filled, xlab = x_label, main = the_title, breaks = "FD")
 rug(step_array_filled)
 ```
 
+![plot of chunk imputation](figure/imputation-1.png)
+
 The mean of the daily total number of steps for the imputed data set is 
-`r the_mean_filled` and its median is `r the_median_filled`. Before imputation,
-the mean was `r the_mean` and the median was `r the_median`. There is a 
-%`r change_mean` increase in the mean and %`r change_median` increase in the median.
+10766 and its median is 10766. Before imputation,
+the mean was 9354 and the median was 10395. There is a 
+%15.1 increase in the mean and %3.57 increase in the median.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 The activity patterns between weekdays and weekends are expected to differ. This
 difference is to be examined.
 
-```{r weekdays_weekends}
+
+```r
 # obtain posixlt form of the dates as an array
 date_array <- as.POSIXlt(filled_data$date)
 # 0: sunday, 1: monday, 2: tuesday, 3: wednesday, 4: thursday, 5: friday,
@@ -160,8 +170,9 @@ the_title <- "Activity Patterns Between Weekdays and Weekends"
 # plot the activity patterns
 xyplot(steps ~ interval | day_type, data = weekend_weekdays, type = "l",
        layout = c(1, 2), main = the_title, xlab = x_label, ylab = y_label) 
-
 ```
+
+![plot of chunk weekdays_weekends](figure/weekdays_weekends-1.png)
 
 As can be seen from the panel plot, the weekends pattern and the weekdays pattern
 differ from each other.
